@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+  django-app:
+    build:
+      context: django_app
+    command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DJANGO_SETTINGS_MODULE=kositi.settings
+      - DJANGO_DEBUG=True
+      - SECRET_KEY=$SECRET_KEY
+      - TWILIO_ACCOUNT_SID=$TWILIO_ACCOUNT_SID
+      - TWILIO_AUTH_TOKEN=$TWILIO_AUTH_TOKEN
+      - TWILIO_NUMBER=$TWILIO_NUMBER
+      - PERSONAL_TEST_NUMBER=$PERSONAL_TEST_NUMBER
+      - ROS_BRIDGE=$ROS_BRIDGE
+      - AUTH0_DOMAIN=greenzie.auth0.com
+      - AUTH0_AUDIENCE=https://app.greenzie.com/api/
+      - SOCIAL_AUTH_AUTH0_KEY=$SOCIAL_AUTH_AUTH0_KEY
+      - SOCIAL_AUTH_AUTH0_SECRET=$SOCIAL_AUTH_AUTH0_SECRET
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
+    volumes:
+      - .:/code
+    ports:
+      - 8000:8000
+    expose:
+      - 8000
+  web:
+    build:
+      context: web_app
+      dockerfile: Dockerfile
+    command: yarn serve
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8080
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./web_app:/app/web_app
+      - /app/web_app/node_modules
+    ports:
+      - 8080:8080
+    expose:
+      - 8080
+  redis:
+    image: "redis:alpine"
+  celery:
+    build: django_app
+    command: celery -A kositi worker -l info
+    environment:
+      - DJANGO_DEBUG=True
+      - SECRET_KEY=$SECRET_KEY
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
+    volumes:
+      - .:/code
+    depends_on:
+      - redis
