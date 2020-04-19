@@ -5,17 +5,16 @@ from django_ros.User.UserDTO import UserDTO
 class RobotDTO:
 
     @staticmethod
-    def dict(lawn_mower: Robot) -> dict:
-        if not lawn_mower.owner:
+    def dict(robot: Robot) -> dict:
+        if not robot.owner:
             owner = {}
         else:
-            owner = UserDTO.dict(lawn_mower.owner)
-        lawn_mower_dict = {
-            'id': str(lawn_mower.id),
-            'name': lawn_mower.name,
-            'phone_number': lawn_mower.phone_number,
-            'subscribed_numbers': [],
+            owner = UserDTO.dict(robot.owner)
+        robot_dict = {
+            'id': robot.id,
+            'name': robot.name,
+            'description': robot.description,
             'owner': owner,
-            'rosbridge_url': lawn_mower.rosbridge_url
+            'rosbridge_url': robot.rosbridge_url
         }
-        return lawn_mower_dict
+        return robot_dict

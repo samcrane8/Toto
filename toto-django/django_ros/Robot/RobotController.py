@@ -6,22 +6,19 @@ from django_ros.Robot.RobotDTO import RobotDTO
 class RobotController:
 
     @staticmethod
-    def create(name: str, owner_id: str, description, rosbridge_url: str) -> (int, dict):
+    def create(name: str, owner_id: str, description: str, rosbridge_url: str) -> (int, dict):
         owner = User.objects.filter(id=owner_id).first()
         robot: Robot = Robot(name=name, owner=owner, description=description, rosbridge_url=rosbridge_url)
         robot.save()
         return 200, {'message': 'Successfully created Robot.'}
 
     @staticmethod
-    def read(user: User) -> (int, list):
-        if user.is_superuser:
-            return 200, [RobotDTO.dict(x) for x in Robot.objects.all()]
-        else:
-            return 200, [RobotDTO.dict(x) for x in Robot.objects.filter(owner=user).all()]
+    def read() -> (int, list):
+        return 200, [RobotDTO.dict(x) for x in Robot.objects.all()]
 
     @staticmethod
-    def update(mower_id: str, name: str, description: str, rosbridge_url: str, owner_id: str) -> (int, dict):
-        robot: Robot = Robot.objects.filter(id=mower_id).first()
+    def update(_id: str, name: str, description: str, rosbridge_url: str, owner_id: str) -> (int, dict):
+        robot: Robot = Robot.objects.filter(id=_id).first()
         if not robot:
             return 400, {'message': 'No robot with this id exists.'}
         robot.name = name
@@ -30,7 +27,7 @@ class RobotController:
         robot.description = description
         robot.rosbridge_url = rosbridge_url
         robot.save()
-        return 200, {'message': 'Successfully created Robot.'}
+        return 200, {'message': 'Successfully patched Robot.'}
 
     @staticmethod
     def delete(mower_id: str):
