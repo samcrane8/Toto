@@ -50,8 +50,7 @@ def update(request: Request, robot_id: int) -> HttpResponse:
 @api_view(['DELETE'])
 @permission_classes([AllowAny])
 def delete(request: Request, robot_id: int) -> HttpResponse:
-    mower_id: str = request.query_params.get('mower_id')
-    status, response_dict = RobotController.delete(mower_id)
+    status, response_dict = RobotController.delete(robot_id)
     response_json = json.dumps(response_dict, indent=4, separators=(',', ':'))
     return HttpResponse(response_json, content_type='application/json', status=status)
 

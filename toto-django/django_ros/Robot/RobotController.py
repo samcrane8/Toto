@@ -35,4 +35,4 @@ class RobotController:
         if not robot:
             return 400, {'message': 'No robot with this id exists.'}
         robot.delete()
-        return 200, {'message': 'robot successfully deleted.'}
+        return 200, {'message': 'Robot successfully deleted.'}
