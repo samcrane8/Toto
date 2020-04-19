@@ -49,8 +49,19 @@ def update(request: Request, robot_id: int) -> HttpResponse:
 @csrf_exempt
 @api_view(['DELETE'])
 @permission_classes([AllowAny])
-def delete(request: Request, robot_id: int) -> HttpResponse:
+def delete(_: Request, robot_id: int) -> HttpResponse:
     status, response_dict = RobotController.delete(robot_id)
     response_json = json.dumps(response_dict, indent=4, separators=(',', ':'))
     return HttpResponse(response_json, content_type='application/json', status=status)
 
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def run_service(request: Request, robot_id: int) -> HttpResponse:
+    body = request.data
+    service_name = body['service_name']
+    service_type = body['service_type']
+    status, response_dict = RobotController.run_service(robot_id, service_name, service_type)
+    response_json = json.dumps(response_dict, indent=4, separators=(',', ':'))
+    return HttpResponse(response_json, content_type='application/json', status=status)

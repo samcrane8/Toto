@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from .RobotModel import Robot
 from django_ros.Robot.RobotDTO import RobotDTO
+from .tasks import run_service
 
 
 class RobotController:
@@ -17,8 +18,8 @@ class RobotController:
         return 200, [RobotDTO.dict(x) for x in Robot.objects.all()]
 
     @staticmethod
-    def update(_id: str, name: str, description: str, rosbridge_url: str, owner_id: str) -> (int, dict):
-        robot: Robot = Robot.objects.filter(id=_id).first()
+    def update(robot_id: str, name: str, description: str, rosbridge_url: str, owner_id: str) -> (int, dict):
+        robot: Robot = Robot.objects.filter(id=robot_id).first()
         if not robot:
             return 400, {'message': 'No robot with this id exists.'}
         robot.name = name
@@ -36,3 +37,11 @@ class RobotController:
             return 400, {'message': 'No robot with this id exists.'}
         robot.delete()
         return 200, {'message': 'Robot successfully deleted.'}
+
+    @staticmethod
+    def run_service(robot_id: int, service_name: str, service_type: str):
+        robot: Robot = Robot.objects.filter(id=robot_id).first()
+        if not robot:
+            return 400, {'message': 'No robot with this id exists.'}
+        run_service.delay(robot_id, service_name, service_type)
+        return 200, {'message': 'Robot service handed off to worker.'}
